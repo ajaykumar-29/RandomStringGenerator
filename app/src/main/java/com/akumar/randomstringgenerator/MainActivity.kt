@@ -18,16 +18,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
+import com.akumar.randomstringgenerator.repository.RandomStringRepository
 import com.akumar.randomstringgenerator.ui.screens.RandomStringScreen
 import com.akumar.randomstringgenerator.ui.screens.RandomStringViewModel
+import com.akumar.randomstringgenerator.ui.screens.RandomStringViewModelFactory
 import com.akumar.randomstringgenerator.ui.theme.RandomStringGeneratorTheme
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: RandomStringViewModel by viewModels()
+    private lateinit var viewModel: RandomStringViewModel
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val repository = RandomStringRepository(application.contentResolver)
+        val factory = RandomStringViewModelFactory(application, repository)
+        viewModel = ViewModelProvider(this, factory).get(RandomStringViewModel::class.java)
+
         enableEdgeToEdge()
         setContent {
             RandomStringGeneratorTheme {

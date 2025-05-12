@@ -135,14 +135,16 @@ fun RandomStringScreen(viewModel: RandomStringViewModel, modifier: Modifier = Mo
                     }) {
                         Text(stringResource(R.string.generate_string))
                     }
-                    Button(
-                        modifier = Modifier.padding(horizontal = 10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = MaterialTheme.colorScheme.onError
-                        ),
-                        onClick = { showDeleteDialog.value = true }) {
-                        Text(stringResource(R.string.delete_all))
+                    AnimatedVisibility(visible = randomStringList.value.isNotEmpty()) {
+                        Button(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            ),
+                            onClick = { showDeleteDialog.value = true }) {
+                            Text(stringResource(R.string.delete_all))
+                        }
                     }
                 }
             }

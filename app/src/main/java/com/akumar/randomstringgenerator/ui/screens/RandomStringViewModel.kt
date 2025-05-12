@@ -1,10 +1,12 @@
 package com.akumar.randomstringgenerator.ui.screens
 
 import android.app.Application
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.akumar.randomstringgenerator.data.model.RandomStringItem
+import com.akumar.randomstringgenerator.repository.IRandomStringRepository
 import com.akumar.randomstringgenerator.repository.RandomStringRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,11 +14,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RandomStringViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = RandomStringRepository(application.contentResolver)
+class RandomStringViewModel(
+    application: Application,
+    private val repository: IRandomStringRepository
+) : AndroidViewModel(application) {
 
-    private val _result =
-        MutableStateFlow<RandomStringFetchResult>(RandomStringFetchResult.None())
+    private val _result = MutableStateFlow<RandomStringFetchResult>(RandomStringFetchResult.None())
     val result = _result.asStateFlow()
 
     private val _errorMessage = MutableStateFlow("")
@@ -48,10 +51,10 @@ class RandomStringViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun validateInput(input: String): Boolean {
-        if (input == "") {
+        if (input.isEmpty()) {
             _errorMessage.value = "This field can not be empty."
             return false
-        } else if (input.isDigitsOnly().not()) {
+        } else if (!input.all { it.isDigit() }) {
             _errorMessage.value = "Invalid Input"
             return false
         }
@@ -59,3 +62,20 @@ class RandomStringViewModel(application: Application) : AndroidViewModel(applica
         return true
     }
 }
+
+
+class RandomStringViewModelFactory(
+    private val application: Application,
+    private val repository: RandomStringRepository
+) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(RandomStringViewModel::class.java)) {
+            return RandomStringViewModel(application, repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+

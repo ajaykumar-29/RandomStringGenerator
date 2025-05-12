@@ -10,11 +10,11 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-class RandomStringRepository(private val contentResolver: ContentResolver) {
+class RandomStringRepository(private val contentResolver: ContentResolver):IRandomStringRepository {
     private val DATA_URI = "content://com.iav.contestdataprovider/text"
     private val DATA_COLUMN_NAME = "data"
 
-    fun getRandomString(randomStringLength: Int): RandomStringFetchResult {
+     override fun getRandomString(randomStringLength: Int): RandomStringFetchResult {
         val uri = DATA_URI.toUri()
         val projection = arrayOf(DATA_COLUMN_NAME)
         val queryArgs = Bundle().apply {
@@ -50,7 +50,7 @@ class RandomStringRepository(private val contentResolver: ContentResolver) {
     }
 
 
-    fun formatDate(dateStr: String): String {
+    private fun formatDate(dateStr: String): String {
         return try {
             val inputFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
             inputFormatter.timeZone = TimeZone.getTimeZone("Asia/Kolkata")
