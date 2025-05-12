@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Random String Generator</string>
+    <string name="enter_string_size">Enter String Size</string>
+    <string name="generate_string">Generate String</string>
+    <string name="delete_all">Delete All</string>
+    <string name="no_data">No strings generated</string>
+    <string name="delete_item">Are you sure you want to delete this item?</string>
+    <string name="delete_all_strings">Are you sure you want delete all the items?</string>
+</resources>
