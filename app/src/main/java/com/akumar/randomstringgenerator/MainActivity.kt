@@ -32,8 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val repository = RandomStringRepository(application.contentResolver)
-        val factory = RandomStringViewModelFactory(application, repository)
+        val factory = RandomStringViewModelFactory(application.contentResolver)
         viewModel = ViewModelProvider(this, factory).get(RandomStringViewModel::class.java)
 
         enableEdgeToEdge()

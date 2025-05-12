@@ -1,6 +1,7 @@
 package com.akumar.randomstringgenerator.ui.screens
 
 import android.app.Application
+import android.content.ContentResolver
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -15,9 +16,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class RandomStringViewModel(
-    application: Application,
     private val repository: IRandomStringRepository
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     private val _result = MutableStateFlow<RandomStringFetchResult>(RandomStringFetchResult.None())
     val result = _result.asStateFlow()
@@ -65,14 +65,15 @@ class RandomStringViewModel(
 
 
 class RandomStringViewModelFactory(
-    private val application: Application,
-    private val repository: RandomStringRepository
+    private val contentResolver: ContentResolver,
 ) : ViewModelProvider.Factory {
+    private val repository: RandomStringRepository =
+        RandomStringRepository(contentResolver)
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RandomStringViewModel::class.java)) {
-            return RandomStringViewModel(application, repository) as T
+            return RandomStringViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

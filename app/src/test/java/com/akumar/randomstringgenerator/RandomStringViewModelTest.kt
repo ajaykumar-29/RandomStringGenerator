@@ -29,9 +29,8 @@ class RandomStringViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(StandardTestDispatcher())
-        val application = mock(Application::class.java)
         fakeRepository = FakeRandomStringRepository()
-        viewModel = RandomStringViewModel(application, fakeRepository)
+        viewModel = RandomStringViewModel(fakeRepository)
     }
 
     @After
