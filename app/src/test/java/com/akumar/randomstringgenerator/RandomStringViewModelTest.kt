@@ -1,13 +1,11 @@
 package com.akumar.randomstringgenerator
 
-import android.app.Application
 import com.akumar.randomstringgenerator.data.model.RandomStringItem
-import com.akumar.randomstringgenerator.ui.screens.RandomStringFetchResult
-import com.akumar.randomstringgenerator.ui.screens.RandomStringViewModel
+import com.akumar.randomstringgenerator.ui.screens.randomStringScreen.RandomStringFetchResult
+import com.akumar.randomstringgenerator.ui.screens.randomStringScreen.RandomStringViewModel
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -16,7 +14,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.mock
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 

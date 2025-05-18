@@ -1,15 +1,45 @@
 package com.akumar.randomstringgenerator.ui.theme
+
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
+import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.toLowerCase
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import com.akumar.randomstringgenerator.data.model.ThemeMode
+import kotlin.math.sqrt
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -253,25 +283,75 @@ val unspecified_scheme = ColorFamily(
 
 @Composable
 fun RandomStringGeneratorTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
     content: @Composable() () -> Unit
 ) {
-  val colorScheme = when {
-      dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-          val context = LocalContext.current
-          if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-      }
-      
-      darkTheme -> darkScheme
-      else -> lightScheme
-  }
+    val context = LocalContext.current
+    val appSharedPreferences: SharedPreferences =
+        context.getSharedPreferences("appPreference", Context.MODE_PRIVATE)
+    var appTheme =
+        appSharedPreferences.getString("appTheme", ThemeMode.DEFAULT.name.lowercase())
+    val colorScheme = remember {
+        mutableStateOf(
+            when (appTheme) {
+                ThemeMode.LIGHT.name.lowercase() -> lightScheme
+                else -> darkScheme
+            }
+        )
+    }
 
-  MaterialTheme(
-    colorScheme = colorScheme,
-    typography = Typography,
-    content = content
-  )
+    DisposableEffect(appSharedPreferences) {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "appTheme") {
+                appTheme =
+                    appSharedPreferences.getString("appTheme", ThemeMode.DEFAULT.name.lowercase())
+                Log.d("TAG", "CameraAndroidAppTheme: isDark = $appTheme ")
+                colorScheme.value = when (appTheme) {
+                    ThemeMode.LIGHT.name.lowercase() -> lightScheme
+                    else -> darkScheme
+                }
+            }
+        }
+        appSharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+        onDispose {
+            appSharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
+    Crossfade(targetState = colorScheme.value) { mode ->
+        MaterialTheme(
+            colorScheme = mode,
+            typography = Typography,
+            content = content
+        )
+    }
+
 }
 
+
+
+class CirclePath(private val progress: Float, private val origin: Offset = Offset(0f, 0f)) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+
+        val center = Offset(
+            x = size.center.x - ((size.center.x - origin.x) * (1f - progress)),
+            y = size.center.y - ((size.center.y - origin.y) * (1f - progress)),
+        )
+        val radius = (sqrt(
+            size.height * size.height + size.width * size.width
+        ) * .5f) * progress
+
+        return Outline.Generic(
+            Path().apply {
+                addOval(
+                    Rect(
+                        center = center,
+                        radius = radius,
+                    )
+                )
+            }
+        )
+    }
+}

@@ -1,4 +1,4 @@
-package com.akumar.randomstringgenerator.ui.screens
+package com.akumar.randomstringgenerator.ui.screens.randomStringScreen
 
 import com.akumar.randomstringgenerator.data.model.RandomStringItem
 

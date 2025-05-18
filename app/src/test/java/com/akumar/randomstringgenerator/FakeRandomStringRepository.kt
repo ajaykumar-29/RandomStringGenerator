@@ -1,7 +1,7 @@
 package com.akumar.randomstringgenerator
 
-import com.akumar.randomstringgenerator.repository.IRandomStringRepository
-import com.akumar.randomstringgenerator.ui.screens.RandomStringFetchResult
+import com.akumar.randomstringgenerator.data.repository.IRandomStringRepository
+import com.akumar.randomstringgenerator.ui.screens.randomStringScreen.RandomStringFetchResult
 
 class FakeRandomStringRepository : IRandomStringRepository {
     private var result: RandomStringFetchResult = RandomStringFetchResult.None()
