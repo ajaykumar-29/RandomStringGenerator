@@ -2,10 +2,11 @@ package com.akumar.randomstringgenerator.ui.screens.randomStringScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akumar.randomstringgenerator.data.database.RandomStringsDatabaseRepository
+import com.akumar.randomstringgenerator.data.database.IRandomStringsDatabaseRepository
 import com.akumar.randomstringgenerator.data.model.RandomStringItem
 import com.akumar.randomstringgenerator.data.repository.IRandomStringRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,11 +14,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class RandomStringViewModel @Inject constructor(
     private val randomStringRepository: IRandomStringRepository,
-    private val randomStringsDatabaseRepository: RandomStringsDatabaseRepository
+    private val randomStringsDatabaseRepository: IRandomStringsDatabaseRepository,
+    @Named("IO")private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     private val _result = MutableStateFlow<RandomStringFetchResult>(RandomStringFetchResult.None())
@@ -40,7 +43,7 @@ class RandomStringViewModel @Inject constructor(
 
     fun fetchRandomString(randomStringLength: Int) {
         _result.value = RandomStringFetchResult.Loading()
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val result = randomStringRepository.getRandomString(randomStringLength)
             _result.value = result
 
@@ -52,13 +55,13 @@ class RandomStringViewModel @Inject constructor(
     }
 
     fun deleteAllStrings() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             randomStringsDatabaseRepository.deleteAllRandomStrings()
         }
     }
 
     fun deleteString(item: RandomStringItem) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             randomStringsDatabaseRepository.delete(item)
         }
     }

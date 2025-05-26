@@ -3,6 +3,7 @@ package com.akumar.randomstringgenerator.di
 import android.content.Context
 import androidx.room.Room
 import com.akumar.randomstringgenerator.data.database.IRandomStringDao
+import com.akumar.randomstringgenerator.data.database.IRandomStringsDatabaseRepository
 import com.akumar.randomstringgenerator.data.database.RandomStringsDatabase
 import com.akumar.randomstringgenerator.data.database.RandomStringsDatabaseRepository
 import com.akumar.randomstringgenerator.data.repository.IRandomStringRepository
@@ -42,7 +43,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRandomStringsDatabaseRepository(randomStringDao: IRandomStringDao): RandomStringsDatabaseRepository {
+    fun provideRandomStringsDatabaseRepository(randomStringDao: IRandomStringDao): IRandomStringsDatabaseRepository {
         return RandomStringsDatabaseRepository(randomStringDao)
     }
 }

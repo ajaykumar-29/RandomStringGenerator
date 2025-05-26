@@ -61,6 +61,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.akumar.randomstringgenerator.R
 import com.akumar.randomstringgenerator.data.model.RandomStringItem
 import com.akumar.randomstringgenerator.ui.common.CopyToClipboardButton
@@ -69,7 +70,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun RandomStringScreen(viewModel: RandomStringViewModel, modifier: Modifier = Modifier) {
+fun RandomStringScreen(
+    modifier: Modifier = Modifier,
+    viewModel: RandomStringViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val inputValue by viewModel.inputValue.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
