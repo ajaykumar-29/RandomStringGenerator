@@ -2,54 +2,65 @@ package com.akumar.randomstringgenerator.ui.screens.randomStringScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akumar.randomstringgenerator.data.database.RandomStringsDatabaseRepository
 import com.akumar.randomstringgenerator.data.model.RandomStringItem
 import com.akumar.randomstringgenerator.data.repository.IRandomStringRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class RandomStringViewModel @Inject constructor(
-    private val repository: IRandomStringRepository
+    private val randomStringRepository: IRandomStringRepository,
+    private val randomStringsDatabaseRepository: RandomStringsDatabaseRepository
 ) : ViewModel() {
 
     private val _result = MutableStateFlow<RandomStringFetchResult>(RandomStringFetchResult.None())
-    val result = _result.asStateFlow()
+    val result: StateFlow<RandomStringFetchResult> = _result
 
     private val _errorMessage = MutableStateFlow("")
-    val errorMessage = _errorMessage.asStateFlow()
+    val errorMessage: StateFlow<String> = _errorMessage
 
     private val _inputValue = MutableStateFlow("")
-    val inputValue = _inputValue.asStateFlow()
+    val inputValue: StateFlow<String> = _inputValue
 
-    private val _randomStringList = MutableStateFlow<List<RandomStringItem>>(emptyList())
-    val randomStringList = _randomStringList.asStateFlow()
+    val randomStringList: StateFlow<List<RandomStringItem>> =
+        randomStringsDatabaseRepository.randomStringsList
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                emptyList()
+            )
+
 
     fun fetchRandomString(randomStringLength: Int) {
         _result.value = RandomStringFetchResult.Loading()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                _result.value = repository.getRandomString(randomStringLength)
-                if (_result.value is RandomStringFetchResult.Success) {
-                    _result.value.randomStringItem?.let {
-                        _randomStringList.value = listOf(it) + _randomStringList.value
-                    }
-                    setInputValue("")
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = randomStringRepository.getRandomString(randomStringLength)
+            _result.value = result
+
+            (result as? RandomStringFetchResult.Success)?.randomStringItem?.let { item ->
+                randomStringsDatabaseRepository.insert(item)
+                setInputValue("")
             }
         }
     }
 
     fun deleteAllStrings() {
-        _randomStringList.value = emptyList()
+        viewModelScope.launch(Dispatchers.IO) {
+            randomStringsDatabaseRepository.deleteAllRandomStrings()
+        }
     }
 
     fun deleteString(item: RandomStringItem) {
-        _randomStringList.value = _randomStringList.value.filterNot { it == item }
+        viewModelScope.launch(Dispatchers.IO) {
+            randomStringsDatabaseRepository.delete(item)
+        }
     }
 
     fun setInputValue(newValue: String) {
@@ -57,14 +68,21 @@ class RandomStringViewModel @Inject constructor(
     }
 
     fun validateInput(input: String): Boolean {
-        if (input.isEmpty()) {
-            _errorMessage.value = "This field can not be empty."
-            return false
-        } else if (!input.all { it.isDigit() }) {
-            _errorMessage.value = "Invalid Input"
-            return false
+        return when {
+            input.isEmpty() -> {
+                _errorMessage.value = "This field can not be empty."
+                false
+            }
+
+            !input.all { it.isDigit() } -> {
+                _errorMessage.value = "Invalid Input"
+                false
+            }
+
+            else -> {
+                _errorMessage.value = ""
+                true
+            }
         }
-        _errorMessage.value = ""
-        return true
     }
 }

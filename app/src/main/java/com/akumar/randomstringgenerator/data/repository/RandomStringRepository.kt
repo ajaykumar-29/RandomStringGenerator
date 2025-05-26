@@ -60,7 +60,7 @@ class RandomStringRepository(
             val inputFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
             inputFormatter.timeZone = TimeZone.getTimeZone("Asia/Kolkata")
             val date = inputFormatter.parse(dateStr) ?: return ""
-            val outputFormatter = SimpleDateFormat("dd MMMM, yyyy HH:mm", Locale.getDefault())
+            val outputFormatter = SimpleDateFormat("dd MMMM, yyyy HH:mm:ss", Locale.getDefault())
             outputFormatter.format(date)
         } catch (e: Exception) {
             ""

@@ -54,8 +54,10 @@ dependencies {
     implementation(libs.androidx.core.testing)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    kapt(libs.androidx.room.compiler)
     kapt(libs.hilt.android.compiler)
 
+    implementation(libs.androidx.room.runtime)
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)

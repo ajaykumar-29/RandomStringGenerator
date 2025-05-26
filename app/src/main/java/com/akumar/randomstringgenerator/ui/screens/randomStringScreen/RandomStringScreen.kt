@@ -1,6 +1,5 @@
 package com.akumar.randomstringgenerator.ui.screens.randomStringScreen
 
-import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -83,7 +82,7 @@ fun RandomStringScreen(viewModel: RandomStringViewModel, modifier: Modifier = Mo
     val shouldShowGoToTopButton by
     remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
 
-    LaunchedEffect(randomStringList) { lazyColumnState.scrollToItem(0) }
+    LaunchedEffect(randomStringList) { lazyColumnState.animateScrollToItem(0) }
     SideEffect {
         Log.d("SideEffects", "RandomStringScreen Recomposed")
     }
@@ -198,7 +197,7 @@ fun RandomStringScreen(viewModel: RandomStringViewModel, modifier: Modifier = Mo
                                 .align(Alignment.BottomEnd)
                                 .padding(end = 8.dp, bottom = 8.dp),
                             onClick = {
-                                coroutineScope.launch { lazyColumnState.scrollToItem(0) }
+                                coroutineScope.launch { lazyColumnState.animateScrollToItem(0) }
                             }) {
                             Icon(painter = painterResource(R.drawable.go_to_top), "go to top")
                         }
